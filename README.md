@@ -1,5 +1,5 @@
-# koposw_ResortAdmin
-4가지 웹 계층(Domain, Dao, Service, UI) 을 사용한 리조트 서비스 게시판
+# ImageScan
+텐서플로우를 활용한 머신러닝과 플라스크를 활용한 서버 구축을 하였다.
 
 ### 메인 화면
 <img src="https://user-images.githubusercontent.com/95400620/183031611-ae58934f-6e0c-4e33-9558-1e36b315a832.png" width="300px">

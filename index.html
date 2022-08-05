@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>감정 평가</title>
+    <script src="https://unpkg.com/axios@0.24.0/dist/axios.min.js"></script>
+    <!-- 부트스트랩 css 사용 -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-gH2yIJqKdNHPEq0n4Mqa/HGKIhSkIHeL5AyhkYV8i59U5AR6csBvApHHNl/vI1Bx"
+      crossorigin="anonymous"
+    />
+    <style>
+      #image_container > img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="row text-center">
+        <div class="col-md-12 m-5"><h1>나는 지금 어떤 감정일까?🤔</h1></div>
+      </div>
+
+      <div class="row m-5">
+        <div class="col-md-2 text-center"></div>
+        <div
+          class="col-md-8 text-center"
+          id="image_container"
+          style="
+            padding: 0px;
+            height: 300px;
+            width: 600px;
+            border: 2px solid gray;
+          "
+        ></div>
+        <div class="col-md-2 text-center"></div>
+      </div>
+
+      <div class="row">
+        <div class="col-md-2 text-center"></div>
+        <div class="col-md-4 text-center">
+          <input
+            type="file"
+            accept="image/*"
+            onchange="setThumbnail(event)"
+            id="fileInput"
+          />
+        </div>
+        <div class="col-md-4 text-center">
+          <button id="uploadButton">테스트!</button>
+        </div>
+        <div class="col-md-2 text-center"></div>
+      </div>
+
+      <div class="row">
+        <div class="col-xs-12 text-center m-5">
+          <div id="setting" style="display: none">
+            어떤 감정일까요? <테스트!> 버튼을 눌러 확인해주세요!
+          </div>
+          <div id="loading" style="display: none">분석중...</div>
+          <div id="result" style="display: none">
+            <p>행복해요😄 <b id="happiness"></b> %</p>
+            <p>그냥그래요😐 <b id="neutral"></b> %</p>
+            <p>화가나요😡 <b id="anger"></b> %</p>
+            <p>슬퍼요😥 <b id="sadness"></b> %</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      let photo = document.getElementById("photo");
+      let result = document.getElementById("result");
+      let loading = document.getElementById("loading");
+      let setting = document.getElementById("setting");
+      let image_container = document.getElementById("image_container");
+
+      document.getElementById("uploadButton").onclick = () => {
+        loading.style.display = "block";
+        setting.style.display = "none";
+        let fileElement = document.getElementById("fileInput");
+
+        // check if user had selected a file
+        if (fileElement.files.length === 0) {
+          alert("please choose a file");
+          return;
+        }
+
+        let file = fileElement.files[0];
+
+        let formData = new FormData();
+        formData.set("file", file);
+
+        axios
+          .post("http://192.168.23.89:8000/compare", formData, {
+            onUploadProgress: (progressEvent) => {
+              const percentCompleted = Math.round(
+                (progressEvent.loaded * 100) / progressEvent.total
+              );
+              console.log(`upload process: ${percentCompleted}%`);
+            },
+          })
+          .then((res) => {
+            console.log(res.data);
+            var angerPercent = document.getElementById("anger");
+            var happinessPercent = document.getElementById("happiness");
+            var neutralPercent = document.getElementById("neutral");
+            var sadnessPercent = document.getElementById("sadness");
+
+            angerPercent.innerHTML = Math.floor(res.data.anger * 100);
+            happinessPercent.innerHTML = Math.floor(res.data.happiness * 100);
+            neutralPercent.innerHTML = Math.floor(res.data.neutral * 100);
+            sadnessPercent.innerHTML = Math.floor(res.data.sadness * 100);
+
+            result.style.display = "block";
+            loading.style.display = "none";
+          });
+      };
+
+      function setThumbnail(event) {
+        var reader = new FileReader();
+
+        reader.onload = function (event) {
+          var preventImgParents = document.getElementById("image_container");
+
+          if (preventImgParents.childElementCount != 0) {
+            preventImgParents.removeChild(preventImgParents.children[0]);
+          }
+
+          var img = document.createElement("img");
+          img.setAttribute("src", event.target.result);
+          document.querySelector("div#image_container").appendChild(img);
+        };
+
+        reader.readAsDataURL(event.target.files[0]);
+
+        setting.style.display = "block";
+        result.style.display = "none";
+      }
+    </script>
+  </body>
+</html>

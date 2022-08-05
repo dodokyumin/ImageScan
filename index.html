@@ -23,7 +23,7 @@
   <body>
     <div class="container">
       <div class="row text-center">
-        <div class="col-md-12 m-5"><h1>나는 지금 어떤 감정일까?🤔</h1></div>
+        <div class="col-md-12 m-4"><h1>지금 어떤 감정일까요?🤔</h1></div>
       </div>
 
       <div class="row m-5">
@@ -37,7 +37,9 @@
             width: 600px;
             border: 2px solid gray;
           "
-        ></div>
+        >
+          <p style="margin-top: 20%" id="notice">파일을 선택해주세요</p>
+        </div>
         <div class="col-md-2 text-center"></div>
       </div>
 
@@ -83,6 +85,8 @@
       document.getElementById("uploadButton").onclick = () => {
         loading.style.display = "block";
         setting.style.display = "none";
+        result.style.display = "none";
+
         let fileElement = document.getElementById("fileInput");
 
         // check if user had selected a file
@@ -126,10 +130,8 @@
         var reader = new FileReader();
 
         reader.onload = function (event) {
-          var preventImgParents = document.getElementById("image_container");
-
-          if (preventImgParents.childElementCount != 0) {
-            preventImgParents.removeChild(preventImgParents.children[0]);
+          if (image_container.childElementCount != 0) {
+            image_container.removeChild(image_container.children[0]);
           }
 
           var img = document.createElement("img");

@@ -2,7 +2,7 @@ import numpy as np
 import tensorflow as tf
 import time
 from flask import Flask, request
-from flask_cors import CORS
+from flask_cors import CORS, cross_origin
 from werkzeug.utils import secure_filename
 
 UPLOAD_FOLDER = 'uploads'
@@ -10,7 +10,7 @@ ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg', 'gif'])
 
 app = Flask('First App')
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-CORS(app)
+CORS(app, resources={r'*': {'origins': '*'}})
 
 @app.route("/compare", methods = ['POST'])
 def comparePhoto():

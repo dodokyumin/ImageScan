@@ -2,7 +2,7 @@
 
 <meta charset='utf-8'>
 
-<title>이미지 분석</title>
+<title>영화 예매</title>
 <script>
     var log = function(s) {
         console.log(s);
@@ -23,6 +23,10 @@
      function goHome2() {
       w.send("AA");
     }
+
+     function aHall(seat){
+      w.send(seat);
+     }
     
     w.onopen = function() {
         log("open");
@@ -41,6 +45,23 @@
     window.onload = function() {
         log(log.buffer.join("\n"));
     }
+
+     
+    function mkTable (){
+      document.write("<table>");
+        for (let i = 97; i <= 101; i++) {
+          char = String.fromCharCode(i); //a~e
+          document.write("<tr>");
+          for (let j= 1; j < 5; j++ ){
+
+            document.write("<td>"+char+"-"+j+"<td>");
+
+          }
+          document.write("</tr>");
+      }
+      document.write("</table>");
+    }
+
 </script>
 
 <style>
@@ -68,17 +89,42 @@
     width: 70%;
     height: 300px;
   }
+
+  table {
+        width: 100%;
+        text-align: center;
+      }
 </style>
 
 <form>
     <div class="title">
-      <p class="textTitle">서버에 요청날리기</p>
+      <p class="textTitle">영화관 사용 불가 좌석 안내</p>
     </div>
   <div class="title">
       <input id="sendbutton" type="button" value="서버로 신호보내기" onclick="javascript:goHome();" data-theme="a" />
       <input id="sendbutton2" type="button" value="신호2" onclick="javascript:goHome2();" data-theme="a" />
-
   </div>
 </form>
+
+<form>
+  <h2>A관</h2>
+  <div style="text-align: center"><h4>스크린</h4></div>
+  <script>
+    mkTable();
+  </script>
+</form>
+
+<hr>
+
+<form>
+  <h2>B관</h2>
+  
+  <div style="text-align: center"><h4>스크린</h4></div>
+<script>
+    mkTable();
+  </script>
+</form>
+
+
 
 </html>

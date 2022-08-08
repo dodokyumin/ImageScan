@@ -17,8 +17,11 @@
     w = new WebSocket(url);
     
     function goHome() {
-      location.href = "index.html";
-      w.send("HM");
+      w.send("HI");
+    }
+
+     function goHome2() {
+      w.send("AA");
     }
     
     w.onopen = function() {
@@ -69,17 +72,13 @@
 
 <form>
     <div class="title">
-      <img src="ctc.png"/>
-    </div>
-    <div class="title">
-      <img src="<?=$uploadfile?>"/>
-    </div>
-    <div class="title">
-      <p class="textTitle">이미지 분석 요청 완료</p>
+      <p class="textTitle">서버에 요청날리기</p>
     </div>
   <div class="title">
-      <input id="sendbutton" type="button" value="다시 분석" onclick="javascript:goHome();" data-theme="a" />
-    </div>
+      <input id="sendbutton" type="button" value="서버로 신호보내기" onclick="javascript:goHome();" data-theme="a" />
+      <input id="sendbutton2" type="button" value="신호2" onclick="javascript:goHome2();" data-theme="a" />
+
+  </div>
 </form>
 
 </html>

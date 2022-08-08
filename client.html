@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<meta charset='utf-8'>
+<title>이미지 분석 결과</title>
+<script>
+ 
+    var log = function(s) {
+        console.log(s);
+        if (document.readyState !== "complete") {
+            log.buffer.push(s);
+        } else {
+            document.getElementById("output").innerHTML += (s + "\n")
+        }
+    }
+    log.buffer = [];
+    url = "ws://127.0.0.1:8080";
+    w = new WebSocket(url);
+ 
+    w.onopen = function() {
+        log("open");
+        w.send("thank you for accepting this Web Socket request");
+    }
+ 
+    w.onmessage = function(e) {
+        console.log(e.data);
+        headMS = e.data.substr(0,2);
+        console.log("HEAD => " + headMS);
+        if(headMS == "IP") {
+            stopTTS();
+            filePath = e.data.substr(3);
+            document.getElementById("currentImg").src = "files/" + filePath;
+            document.getElementById("processText").innerHTML = "이미지 분석 중";
+            sendML(filePath);
+            console.log(filePath);
+        } else if(headMS == "HM") {
+            stopTTS();
+            goTTS("이미지 분석을 위한 준비가 완료되었습니다. 각 단말에서 분석할 이미지를 전송해 주세요.");
+            document.getElementById("processText").innerHTML = "이미지 분석 준비";
+            document.getElementById("currentImg").src = "noimage.gif";
+        }
+    }
+ 
+    w.onclose = function(e) {
+        log("closed");
+    }
+ 
+    window.onload = function() {
+        log(log.buffer.join("\n"));
+        document.getElementById("sendButton").onclick = function() {
+            console.log(document.getElementById("inputMessage").value);
+            w.send(document.getElementById("inputMessage").value);
+        }
+    }
+
+    function sendML(path) {
+        console.log(path)
+        var xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function() {
+            if (this.readyState == 4 && this.status == 200) {
+              var response = JSON.parse(this.responseText);
+              var french = response.frenchbulldog * 100;
+              var maltese = response.maltese * 100;
+              var shihtzu = response.shitzu * 100;
+              french = french.toFixed(2);
+              maltese = maltese.toFixed(2);
+              shihtzu = shihtzu.toFixed(2);
+              document.getElementById("processText").innerHTML = "이미지 분석 완료<br><br>";
+              document.getElementById("processText").innerHTML +=
+                    "<font size=30px>시츄(" + shihtzu +
+                    "%), 말티즈(" + maltese + "%), 프렌치불독(" + french + "%)</font>";
+
+              // 음성 출력
+              var ttsText = "시츄 " + shihtzu +
+                    "%, 말티즈 " + maltese + "%, 프렌치불독 " + french + "% 의 비율로 유사한 것으로 판정되었습니다. 다시 분석 하시려면 다시분석 버튼을 눌러 주세요.";
+              goTTS(ttsText);
+            }
+        };
+        xhttp.open("GET", "http://192.168.26.81:8000/compare?path="+path, true);
+        xhttp.send();
+    }
+
+    function goTTS(ttsText) {
+        var xmlHttp = new XMLHttpRequest();
+        xmlHttp.onreadystatechange = function () {
+          if (xmlHttp.readyState === xmlHttp.DONE) {
+            if (xmlHttp.status === 200) {
+              // do something with xmlHttp.responseText
+              document.getElementById('audioPlayer').src = xmlHttp.responseText;
+              document.getElementById('audioPlayer').play();
+              console.log(xmlHttp.responseText);
+              
+            } else {
+              // handle errors
+              console.log("Error");
+            }
+          }
+        };
+        var url = "call_TTS.php?body=<speak>" + ttsText + "</speak>";
+        xmlHttp.open('GET', url, true);
+        xmlHttp.send(null); 
+    }
+
+    function stopTTS() {
+        document.getElementById('audioPlayer').pause();
+    }
+
+    function startApp() {
+        document.getElementById('currentImg').hidden = false;
+        document.getElementById('processText').hidden = false;
+        document.getElementById('startAppButton').hidden = true;
+        goTTS("이미지 분석을 위한 준비가 완료되었습니다. 각 단말에서 분석할 이미지를 전송해 주세요.");
+    }
+</script>
+ 
+<style>
+  .title {
+    margin-top: 50px;
+    font-size: 50pt;
+    width: 100%; 
+    margin-bottom: 50px;
+    border: 10px;
+    text-align: center;
+  }
+  .logotitle {
+	width: 53%;
+	text-align: center;
+	align: center;
+	display: inline-block;
+  }
+  .memo {
+	width: 30%; 
+	height: 150px;
+	 background-color: #D7DF01;
+	width: 400px;
+	text-align: center;
+	display: inline-block;
+  }
+  .textTitle {
+    color : #424242;
+  }
+  #sendbutton {
+    font-size : 50pt;
+    text-align: center;
+    width: 70%;
+  }
+
+  #selectbox {
+    margin-top: 100px;
+    font-size : 50pt;
+    text-align: center;
+    width: 70%;
+    height: 300px;
+  }
+
+</style>
+<audio controls hidden id="audioPlayer"></audio>
+<form>
+    <div class="memo">
+	<p><b>스마트폰에서 접속방법 <br><br>
+	  WiFi 접속 => KOPO_CTC_5F, 비번 : 12345678<br><br>
+	  웹 사이트 접속 => http://192.168.26.81/show/</b>
+	</p>
+    </div>
+    <div class="logotitle">
+      <img src="ctc.png"/>
+    </div>
+    <div class="title">
+      <img hidden id="currentImg" src="noimage.gif"/>
+      <input id="startAppButton" style="font-size:50pt;height:300px;" type="button" onClick="startApp()" value="시작하려면 버튼을 클릭하세요."></input>
+    </div>
+    <div class="title">
+      <p hidden id="processText" class="textTitle">이미지 분석 준비</p>
+    </div>
+    <div class="title">
+      <p id="resultText" class="textTitle"></p>
+    </div>
+  
+</form>
+
+</html>
